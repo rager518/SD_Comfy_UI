@@ -26,16 +26,15 @@ import va from '@vercel/analytics';
 import { PromptSuggestion } from '@/components/PromptSuggestion';
 import { useRouter } from 'next/navigation';
 import { toast, Toaster } from 'react-hot-toast';
-import { generateAI, AIReturn } from '@/utils/comfyui'
-import { isCryptoKey } from 'util/types';
-import { url } from 'inspector';
-
+import { generateAI, AIReturn, uploadImage } from '@/utils/comfyui'
+import Dropzone from '@/components/ui/dropzone';
+import settings from '@/stores/imageStore'
 
 const promptSuggestions = [
-  'A city view with clouds',
-  'A beautiful glacier',
-  'A forest overlooking a mountain',
-  'A saharan desert',
+  'Bruising,Bruise,eyes_around_bruising,Serious injury,',
+  'Bruising,Blood stains,face_bruising,Serious injury,',
+  'Bruising,Bruise,forehead_bruising,Serious injury,',
+  'Bruising,Blood stains,forehead_bruising,Serious injury,',
 ];
 
 const generateFormSchema = z.object({
@@ -62,6 +61,8 @@ const Body = ({
   const [error, setError] = useState<Error | null>(null);
   const [response, setResponse] = useState<QrGenerateResponse | null>(null);
   const [submittedURL, setSubmittedURL] = useState<string | null>(null);
+  const [isUploadImage, setIsUploadImage] = useState(false);
+  const [UploadImageUrl, setIsUploadImageUrl] = useState<string>("");
 
   const router = useRouter();
 
@@ -71,8 +72,8 @@ const Body = ({
 
     // Set default values so that the form inputs are controlled components.
     defaultValues: {
-      url: '192.168.31.145:8188',
-      prompt: '1girl,red dress',
+      url: process.env.NEXT_PUBLIC_SERVER_ADDRESS,
+      prompt: 'Bruising, Blood stains,face_bruising,Serious injury,apply realistic dark bruising around the eye area and subtle purple bruises under the eyes,',
     },
   });
 
@@ -82,6 +83,18 @@ const Body = ({
     },
     [form],
   );
+
+  const handleImageDrop = async (file: File) => {
+    let image = await uploadImage(file);
+    if (image) {
+      setIsUploadImage(true);
+      setIsUploadImageUrl(image.url);
+      console.log(image.url);
+
+      settings.setItem({ name: image.name, url: image.url });
+    }
+  };
+
 
   const handleSubmit = useCallback(
     async (values: GenerateFormValues) => {
@@ -129,7 +142,7 @@ const Body = ({
           <Form {...form}>
             <form onSubmit={form.handleSubmit(handleSubmit)}>
               <div className="flex flex-col gap-4">
-                <FormField
+                {/* <FormField
                   control={form.control}
                   name="url"
                   render={({ field }) => (
@@ -143,7 +156,20 @@ const Body = ({
                       <FormMessage />
                     </FormItem>
                   )}
-                />
+                /> */}
+
+                <Dropzone onImageDropped={handleImageDrop}></Dropzone>
+
+                {UploadImageUrl ? (
+                  <QrCard
+                    id="imgUpload"
+                    imageURL={UploadImageUrl}
+                    time='1'
+                  />
+                ) : (
+                  ''
+                )}
+
                 <FormField
                   control={form.control}
                   name="prompt"
@@ -164,6 +190,7 @@ const Body = ({
                     </FormItem>
                   )}
                 />
+
                 <div className="my-2">
                   <p className="text-sm font-medium mb-3">Prompt suggestions</p>
                   <div className="grid sm:grid-cols-2 grid-cols-1 gap-3 text-center text-gray-500 text-sm">
@@ -213,6 +240,7 @@ const Body = ({
                 <div className="flex flex-col justify-center relative h-auto items-center">
                   {response ? (
                     <QrCard
+                      id="generateImg"
                       imageURL={response.image_url}
                       time={(response.model_latency_ms / 1000).toFixed(2)}
                     />

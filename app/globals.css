@@ -9,20 +9,22 @@
 .gradient-border {
   border: 1px solid transparent;
   background: linear-gradient(white, white),
-    linear-gradient(
-      25deg,
+    linear-gradient(25deg,
       rgba(209, 213, 219, 1),
       rgba(209, 213, 219, 1),
       rgba(0, 0, 0, 0.63),
       rgba(209, 213, 219, 1),
-      rgba(209, 213, 219, 1)
-    );
+      rgba(209, 213, 219, 1));
   background-clip: padding-box, border-box;
   background-origin: padding-box, border-box;
 }
 
 @layer base {
   :root {
+    --comfy-menu-bg: #353535;
+    --comfy-input-bg: #343535;
+    --error-text: #ff4444;
+    --input-text: #ddd;
     --background: 0 0% 100%;
     --foreground: 222.2 84% 4.9%;
 
@@ -89,7 +91,87 @@
   * {
     @apply border-border;
   }
+
   body {
     @apply bg-background text-foreground;
   }
+}
+
+
+
+.comfy-modal {
+  display: none;
+  /* Hidden by default */
+  position: fixed;
+  /* Stay in place */
+  z-index: 100;
+  /* Sit on top */
+  padding: 30px 30px 10px 30px;
+  background-color: var(--comfy-menu-bg);
+  /* Modal background */
+  color: var(--error-text);
+  box-shadow: 0 0 20px #888888;
+  border-radius: 10px;
+  top: 50%;
+  left: 50%;
+  max-width: 80vw;
+  max-height: 80vh;
+  transform: translate(-50%, -50%);
+  overflow: hidden;
+  justify-content: center;
+  font-family: monospace;
+  font-size: 15px;
+}
+
+.comfy-modal-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.comfy-modal p {
+  overflow: auto;
+  white-space: pre-line;
+  /* This will respect line breaks */
+  margin-bottom: 20px;
+  /* Add some margin between the text and the close button*/
+}
+
+.comfy-modal select,
+.comfy-modal input[type=button],
+.comfy-modal input[type=checkbox] {
+  margin: 3px 3px 3px 4px;
+}
+
+.comfy-modal input,
+.comfy-modal select {
+  color: var(--input-text);
+  background-color: var(--comfy-input-bg);
+  border-radius: 8px;
+  border-color: var(--border-color);
+  border-style: solid;
+  font-size: inherit;
+}
+
+.comfy-btn,
+.comfy-menu>button,
+.comfy-menu-btns button,
+.comfy-menu .comfy-list button,
+.comfy-modal button {
+  color: var(--input-text);
+  background-color: var(--comfy-input-bg);
+  border-radius: 8px;
+  border-color: var(--border-color);
+  border-style: solid;
+  margin-top: 2px;
+}
+
+.comfy-btn:hover:not(:disabled),
+.comfy-menu>button:hover,
+.comfy-menu-btns button:hover,
+.comfy-menu .comfy-list button:hover,
+.comfy-modal button:hover,
+.comfy-menu-actions button:hover {
+  filter: brightness(1.2);
+  will-change: transform;
+  cursor: pointer;
 }
